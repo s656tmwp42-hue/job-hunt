@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hunt">
+<meta name="theme-color" content="#0a0a0a">
+<title>Job Hunt — Akash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0a;--bg-elev:#141414;--bg-elev-2:#1c1c1c;--border:#262626;--border-strong:#353535;--text:#f5f5f5;--text-dim:#a3a3a3;--text-faint:#6b6b6b;--accent:#d4ff3a;--accent-dim:#8aa820;--red:#ff5a5a;--green:#4ade80;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--text);font-family:'Inter Tight',sans-serif;font-size:15px;line-height:1.45;overscroll-behavior-y:contain;-webkit-font-smoothing:antialiased;height:100%}
+  body{display:flex;flex-direction:column;min-height:100dvh}
+  .header{padding:calc(var(--safe-top) + 14px) 18px 14px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10}
+  .brand{display:flex;align-items:baseline;justify-content:space-between}
+  .brand-title{font-family:'Fraunces',serif;font-weight:800;font-size:26px;letter-spacing:-0.02em}
+  .brand-title .accent{color:var(--accent)}
+  .brand-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em}
+  .tabs{display:flex;border-top:1px solid var(--border);background:var(--bg);position:sticky;bottom:0;z-index:10;padding-bottom:var(--safe-bot)}
+  .tab{flex:1;padding:12px 4px;background:none;border:none;color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6}
+  .tab.active{color:var(--accent)}
+  main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .view{display:none;padding:16px 18px 24px}
+  .view.active{display:block}
+  .search-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center;background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:4px 4px 4px 12px}
+  .search-bar svg{width:16px;height:16px;stroke:var(--text-faint);fill:none;stroke-width:2;flex-shrink:0}
+  .search-input{flex:1;background:none;border:none;color:var(--text);font-family:'Inter Tight',sans-serif;font-size:14px;padding:8px 0;outline:none}
+  .search-input::placeholder{color:var(--text-faint)}
+  .search-go{background:var(--accent);color:#000;border:none;padding:7px 12px;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer}
+  .pill{background:var(--bg-elev);border:1px solid var(--border);color:var(--text-dim);padding:7px 12px;border-radius:100px;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;white-space:nowrap}
+  .pill.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500}
+  .pill-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin:0 -18px 14px;padding-left:18px;padding-right:18px}
+  .pill-row::-webkit-scrollbar{display:none}
+  .btn{background:var(--accent);color:#000;border:none;padding:10px 14px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer}
+  .btn:active{transform:scale(0.97)}
+  .btn-ghost{background:var(--bg-elev);color:var(--text-dim);border:1px solid var(--border)}
+  .status-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em}
+  .status-bar .count{color:var(--accent)}
+  .source-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;background:var(--bg-elev-2);padding:2px 5px;border-radius:3px}
+  .job-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;position:relative;cursor:pointer;transition:border-color 0.15s,transform 0.1s}
+  .job-card:active{transform:scale(0.99)}
+  .job-card.saved{border-color:var(--accent-dim)}
+  .job-meta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:10px}
+  .job-company{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .job-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);flex-shrink:0}
+  .job-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;line-height:1.2;letter-spacing:-0.01em;margin-bottom:6px}
+  .job-location{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;margin-bottom:10px}
+  .job-tags{display:flex;gap:5px;flex-wrap:wrap}
+  .job-tag{background:var(--bg-elev-2);color:var(--text-dim);padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.05em}
+  .job-tag.match{background:var(--accent);color:#000;font-weight:600}
+  .job-tag.salary{background:var(--bg-elev-2);color:var(--accent)}
+  .job-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+  .icon-btn{background:none;border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .icon-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .icon-btn.active{color:var(--accent);border-color:var(--accent)}
+  .icon-btn.active svg{fill:var(--accent)}
+  .link-btn{flex:1;background:var(--bg-elev-2);color:var(--text);border:1px solid var(--border);padding:8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;text-decoration:none;text-align:center;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer}
+  .empty{text-align:center;padding:40px 20px;color:var(--text-faint)}
+  .empty-icon{font-family:'Fraunces',serif;font-size:48px;color:var(--border-strong);margin-bottom:8px}
+  .empty-text{font-size:13px;line-height:1.5}
+  .empty-text strong{color:var(--text-dim);display:block;margin-bottom:4px;font-family:'Fraunces',serif;font-size:16px;font-weight:600}
+  .direct-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+  .direct-section h3{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+  .direct-section .note-small{font-size:11px;color:var(--text-faint);margin-bottom:12px;line-height:1.4}
+  .direct-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .direct-tile{background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:12px;text-decoration:none;display:flex;flex-direction:column;gap:4px;color:var(--text);transition:border-color 0.15s}
+  .direct-tile:active{transform:scale(0.98)}
+  .direct-tile .dt-name{font-weight:600;font-size:13px}
+  .direct-tile .dt-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em}
+  .insight-section{margin-bottom:28px}
+  .insight-h{font-family:'Fraunces',serif;font-size:22px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px}
+  .insight-h .num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-right:8px;vertical-align:middle}
+  .insight-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+  .insight-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px}
+  .insight-card-title{font-weight:600;font-size:14px;color:var(--text);margin-bottom:4px}
+  .insight-card-body{font-size:13px;color:var(--text-dim);line-height:1.5}
+  .insight-card .badge{display:inline-block;background:var(--bg-elev-2);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;margin-right:6px;margin-bottom:6px}
+  .salary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
+  .salary-row:last-child{border-bottom:none}
+  .salary-row .role{font-weight:500;font-size:13px}
+  .salary-row .yrs{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);display:block;margin-top:2px}
+  .salary-row .pay{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);font-weight:500}
+  .salary-row.current{background:var(--bg-elev-2);margin:0 -14px;padding:10px 14px;border-radius:6px;border:1px solid var(--accent-dim)}
+  .salary-row.current .role::after{content:' ◄ YOU';font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);font-weight:700}
+  .setting-group{background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
+  .setting-group-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;padding:12px 14px 6px}
+  .setting-row{padding:12px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .setting-row:first-of-type{border-top:none}
+  .setting-label{font-size:13px;flex:1}
+  .setting-label-sub{color:var(--text-faint);font-size:11px;display:block;margin-top:2px;font-family:'JetBrains Mono',monospace}
+  .checkbox-wrap{display:flex;align-items:center;gap:8px;cursor:pointer}
+  .checkbox{width:22px;height:22px;border:1.5px solid var(--border-strong);border-radius:5px;background:var(--bg-elev-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .checkbox.checked{background:var(--accent);border-color:var(--accent)}
+  .checkbox.checked::after{content:'✓';color:#000;font-weight:700;font-size:14px}
+  .input{background:var(--bg-elev-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font-family:'Inter Tight',sans-serif;font-size:13px;width:100%}
+  .input:focus{outline:none;border-color:var(--accent-dim)}
+  .toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#000;padding:10px 16px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:100;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .company-chip{display:inline-flex;align-items:center;gap:4px;background:var(--bg-elev-2);border:1px solid var(--border);padding:5px 10px;border-radius:100px;font-size:11px;margin:0 4px 4px 0}
+  .company-chip .x{color:var(--text-faint);cursor:pointer;margin-left:4px}
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;z-index:200;align-items:flex-end;justify-content:center}
+  .modal-back.show{display:flex}
+  .modal{background:var(--bg-elev);border-top:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:600px;max-height:88dvh;overflow-y:auto;padding:20px 18px calc(20px + var(--safe-bot))}
+  .modal-handle{width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 16px}
+  .modal h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:4px}
+  .modal .modal-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+  .modal .modal-body{font-size:14px;color:var(--text-dim);line-height:1.55}
+  .refresh-spin{animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .note{background:var(--bg-elev);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px;border-radius:6px;font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+  .note strong{color:var(--text)}
+  .note a{color:var(--accent);text-decoration:none}
+  .setup-prompt{background:linear-gradient(180deg,var(--bg-elev) 0%,var(--bg-elev-2) 100%);border:1px solid var(--accent-dim);border-radius:12px;padding:16px;margin-bottom:14px}
+  .setup-prompt h4{font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px}
+  .setup-prompt p{font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div>
+        <div class="brand-title">Job <span class="accent">Hunt</span></div>
+        <div class="brand-sub">v2.0 · Akash · Windsor → MI</div>
+      </div>
+      <button class="icon-btn" id="refreshBtn">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" id="view-jobs">
+      <div id="setupArea"></div>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="searchInput" placeholder="search keywords (e.g. battery DRE)" />
+        <button class="search-go" onclick="runSearch()">GO</button>
+      </div>
+      <div class="pill-row" id="filterPills"></div>
+      <div class="status-bar">
+        <span><span class="count" id="jobCount">0</span> open · <span id="sourceCount">0</span> sources</span>
+        <span id="lastUpdated">—</span>
+      </div>
+      <div id="jobsList"></div>
+      <div class="direct-section">
+        <h3>Search the giants directly</h3>
+        <div class="note-small">These OEMs and Tier-1s don't expose public APIs (Workday-based). Tap any tile to open their careers site pre-filtered for Michigan + your search keyword.</div>
+        <div class="direct-grid" id="directGrid"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-insights">
+      <div class="note"><strong>Market snapshot.</strong> Curated from current EV/automotive market data. Tap any card for context.</div>
+
+      <div class="insight-section">
+        <h2 class="insight-h"><span class="num">01</span>Where Battery DREs go next</h2>
+        <div class="insight-sub">Typical post-DRE moves · 5-10 yr horizon</div>
+        <div class="insight-card"><div class="insight-card-title">Senior / Staff DRE (same lane)</div><div class="insight-card-body">Most common path. Stay in HV battery, deepen specialization (pack DRE → module DRE → cell DRE), then move into Staff/Principal at OEM (GM, Ford, Stellantis Ultium) or EV startup. ~3-5 yr per level.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Technical Specialist / SME</div><div class="insight-card-body">Individual contributor track. Become the go-to person for HV contactor selection, busbar design, or DFMEA on battery systems. High pay, no management headache. Common at GM, Ford, Magna, Bosch.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Engineering Manager → Director</div><div class="insight-card-body">Lead a BDU or pack development team. Requires soft skills + cross-functional track record. ABS-size companies and Tier-1 suppliers (Magna, Lear, Aptiv) hire from DRE pool here.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Systems / Chief Engineer</div><div class="insight-card-body">Move from component to vehicle-level. Owns full HV architecture, BMS, charging integration. Heavy at Rivian, Lucid, Ford Model e.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Adjacent transitions</div><div class="insight-card-body">Battery experience travels well: stationary energy storage (ONE, Tesla Megapack, Form Energy), aerospace eVTOL (Joby, Archer), defense electrification, hydrogen fuel cell. Lower competition, premium pay.</div></div>
+      </div>
+
+      <div class="insight-section">
+        <h2 class="insight-h"><span class="num">02</span>Michigan hiring map</h2>
+        <div class="insight-sub">Active employers · HV/battery/automotive eng</div>
+        <div class="insight-card"><div class="insight-card-title">OEMs (highest volume)</div><div class="insight-card-body"><span class="badge">GM (Warren)</span><span class="badge">Ford (Dearborn)</span><span class="badge">Stellantis (Auburn Hills)</span><span class="badge">Toyota R&D (Ann Arbor)</span>Continuous postings for Senior Battery DRE, Pack DRE, BMS Engineer.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Pure-play EV / battery</div><div class="insight-card-body"><span class="badge">Our Next Energy (Novi)</span><span class="badge">American Battery Solutions</span><span class="badge">LG Energy Solution</span><span class="badge">Ultium Cells (Lansing)</span><span class="badge">BlueOval Battery (Marshall)</span>Smaller, faster moves. Senior/Staff promotions in 18-24 mo realistic.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Tier-1 suppliers</div><div class="insight-card-body"><span class="badge">Magna (Troy)</span><span class="badge">Lear (Southfield)</span><span class="badge">Aptiv (Troy)</span><span class="badge">BorgWarner (Auburn Hills)</span><span class="badge">Bosch (Plymouth)</span><span class="badge">Webasto (Auburn Hills)</span>Strong DRE pipelines. BorgWarner and Magna expanding HV.</div></div>
+        <div class="insight-card"><div class="insight-card-title">EV startups / niche</div><div class="insight-card-body"><span class="badge">Rivian (Plymouth)</span><span class="badge">ChargePoint</span><span class="badge">Harbinger Motors</span>Worth tracking remote roles where MI candidates favored.</div></div>
+      </div>
+
+      <div class="insight-section">
+        <h2 class="insight-h"><span class="num">03</span>Skills that unlock Senior → Principal</h2>
+        <div class="insight-sub">Based on JD analysis · Michigan postings</div>
+        <div class="insight-card"><div class="insight-card-title">You already have ✓</div><div class="insight-card-body"><span class="badge">DFMEA / AIAG-VDA</span><span class="badge">DVP&R</span><span class="badge">GD&T</span><span class="badge">UNECE R100</span><span class="badge">ISO 26262</span><span class="badge">Contactor / fuse</span><span class="badge">Busbar design</span><span class="badge">DRBFM</span>14+ yr automotive, patent, multi-OEM exposure. Principal-ready foundation.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Gaps worth closing (high ROI)</div><div class="insight-card-body"><span class="badge">ISO 26262 FuSa cert</span><span class="badge">BMS architecture</span><span class="badge">SOC / SOH algorithms</span><span class="badge">CAN / LIN</span><span class="badge">UL 2580 / SAE J2929</span><span class="badge">DFSS Black Belt</span>Most Principal HV roles ask for 2-3 of these. DFSS Black Belt appears in GM Senior+ JDs.</div></div>
+        <div class="insight-card"><div class="insight-card-title">Leadership signals to build</div><div class="insight-card-body"><span class="badge">Patents</span><span class="badge">SAE conf papers</span><span class="badge">Cross-functional lead</span><span class="badge">Direct reports</span>Principal title at OEMs requires demonstrated influence beyond your component.</div></div>
+      </div>
+
+      <div class="insight-section">
+        <h2 class="insight-h"><span class="num">04</span>Salary benchmarks</h2>
+        <div class="insight-sub">Michigan · EV/battery roles · 2025-26</div>
+        <div class="insight-card" style="padding:4px 14px">
+          <div class="salary-row"><div><span class="role">Entry Battery Eng</span><span class="yrs">0-2 yr</span></div><div class="pay">$85-95K</div></div>
+          <div class="salary-row"><div><span class="role">Battery Eng II</span><span class="yrs">2-4 yr</span></div><div class="pay">$105-125K</div></div>
+          <div class="salary-row"><div><span class="role">Senior Battery Eng / DRE</span><span class="yrs">5-7 yr</span></div><div class="pay">$135-155K</div></div>
+          <div class="salary-row current"><div><span class="role">Staff Battery Eng</span><span class="yrs">8-12 yr</span></div><div class="pay">$155-185K</div></div>
+          <div class="salary-row"><div><span class="role">Principal Battery Eng</span><span class="yrs">12+ yr</span></div><div class="pay">$175-220K</div></div>
+          <div class="salary-row"><div><span class="role">Eng Manager (HV)</span><span class="yrs">10+ yr</span></div><div class="pay">$160-200K</div></div>
+          <div class="salary-row"><div><span class="role">Director, Battery Eng</span><span class="yrs">15+ yr</span></div><div class="pay">$200-280K</div></div>
+        </div>
+        <div class="insight-card"><div class="insight-card-title">Premiums to negotiate</div><div class="insight-card-body">+15-22% thermal mgmt · +18-25% cell chemistry · +20% BMS embedded · MI pays 8-11% above US median · Contract: $70-85/hr ($145-175K).</div></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-saved">
+      <div class="status-bar">
+        <span><span class="count" id="savedCount">0</span> saved roles</span>
+        <span>Tap card for details</span>
+      </div>
+      <div id="savedList"></div>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="setting-group">
+        <div class="setting-group-title">Adzuna API (recommended for full coverage)</div>
+        <div class="setting-row" style="display:block">
+          <div class="setting-label" style="margin-bottom:8px">Aggregates from Indeed-style boards, employer sites, niche boards. Free tier covers personal use.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);margin-bottom:12px;line-height:1.7">
+            <strong style="color:var(--accent)">SETUP (one time):</strong><br>
+            1. Open <a href="https://developer.adzuna.com/signup" target="_blank" style="color:var(--accent)">developer.adzuna.com/signup</a><br>
+            2. Sign up (free, no card)<br>
+            3. Copy your App ID and API Key<br>
+            4. Paste below
+          </div>
+          <input class="input" id="adzunaIdInput" placeholder="Adzuna App ID" style="margin-bottom:6px" />
+          <input class="input" id="adzunaKeyInput" placeholder="Adzuna API Key" style="margin-bottom:8px" />
+          <button class="btn" onclick="saveAdzunaCreds()" style="width:100%">SAVE & TEST</button>
+          <div id="adzunaStatus" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px"></div>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-group-title">Role Families</div>
+        <div id="roleFamilyToggles"></div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-group-title">Seniority</div>
+        <div id="seniorityToggles"></div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-group-title">Location</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Michigan only</div><span class="setting-label-sub">Windsor commute scope</span></div>
+          <div class="checkbox-wrap" onclick="toggleSetting('michiganOnly')"><div class="checkbox checked" id="cb-michiganOnly"></div></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Include remote (US)</div><span class="setting-label-sub">Remote roles tagged separately</span></div>
+          <div class="checkbox-wrap" onclick="toggleSetting('includeRemote')"><div class="checkbox" id="cb-includeRemote"></div></div>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-group-title">Tracked Companies (Greenhouse / Lever)</div>
+        <div class="setting-row" style="display:block">
+          <div id="companyChips" style="margin-bottom:10px"></div>
+          <div style="display:flex;gap:6px">
+            <input class="input" id="newCompanyInput" placeholder="board-token (e.g. lucidmotors)" />
+            <button class="btn btn-ghost" onclick="addCompany()" style="white-space:nowrap">ADD</button>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint);margin-top:8px;line-height:1.5">
+            Greenhouse: boards.greenhouse.io/{token} · Lever: prefix with "lever:" (e.g. lever:rivian)
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-group-title">Data</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Refresh jobs</div><span class="setting-label-sub">Last: <span id="lastRefreshTime">never</span></span></div>
+          <button class="btn" onclick="refreshJobs(); switchView('jobs')">REFRESH</button>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Clear saved jobs</div><span class="setting-label-sub">Removes all saved roles</span></div>
+          <button class="btn btn-ghost" onclick="clearSaved()">CLEAR</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button class="tab active" onclick="switchView('jobs')" id="tab-jobs">
+      <svg viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z"/></svg>
+      Jobs
+    </button>
+    <button class="tab" onclick="switchView('insights')" id="tab-insights">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Insights
+    </button>
+    <button class="tab" onclick="switchView('saved')" id="tab-saved">
+      <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+      Saved
+    </button>
+    <button class="tab" onclick="switchView('settings')" id="tab-settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+</div>
+
+<div class="modal-back" id="modalBack" onclick="closeModal(event)">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">SAVED</div>
+
+<script>
+const DEFAULT_COMPANIES = [
+  {token:'lucidmotors',name:'Lucid Motors',ats:'greenhouse'},
+  {token:'onecareers',name:'Our Next Energy',ats:'greenhouse'},
+  {token:'chargepoint',name:'ChargePoint',ats:'greenhouse'},
+  {token:'rivian',name:'Rivian',ats:'greenhouse'},
+  {token:'tesla',name:'Tesla',ats:'greenhouse'},
+  {token:'harbingermotors',name:'Harbinger Motors',ats:'greenhouse'},
+  {token:'joby',name:'Joby Aviation',ats:'greenhouse'},
+  {token:'archer',name:'Archer Aviation',ats:'greenhouse'},
+  {token:'formenergy',name:'Form Energy',ats:'greenhouse'},
+  {token:'redwoodmaterials',name:'Redwood Materials',ats:'greenhouse'},
+  {token:'quantumscape',name:'QuantumScape',ats:'greenhouse'},
+  {token:'wallbox',name:'Wallbox',ats:'greenhouse'},
+];
+
+const DIRECT_LINK_COMPANIES = [
+  {name:'General Motors',sub:'Warren MI · Workday',urlTemplate:'https://search-careers.gm.com/en/jobs/?location=Michigan&keyword={kw}'},
+  {name:'Ford Motor Co.',sub:'Dearborn MI · Workday',urlTemplate:'https://corporate.ford.com/careers/search-jobs.html?location=Michigan&keyword={kw}'},
+  {name:'Stellantis',sub:'Auburn Hills MI',urlTemplate:'https://www.stellantis.com/en/careers/job-opportunities?location=Michigan&keyword={kw}'},
+  {name:'Magna',sub:'Troy MI · Tier-1',urlTemplate:'https://jobs.magna.com/jobs?location=Michigan&keywords={kw}'},
+  {name:'BorgWarner',sub:'Auburn Hills · Tier-1',urlTemplate:'https://careers.borgwarner.com/global/en/search-results?keywords={kw}&location=Michigan'},
+  {name:'Bosch',sub:'Plymouth · Tier-1',urlTemplate:'https://www.bosch.us/careers/all-jobs/?keyword={kw}&location=Michigan'},
+  {name:'Lear Corp.',sub:'Southfield · Tier-1',urlTemplate:'https://jobs.lear.com/search?q={kw}&location=Michigan'},
+  {name:'Aptiv',sub:'Troy · Tier-1',urlTemplate:'https://aptiv.wd5.myworkdayjobs.com/Aptiv_Careers?q={kw}&locationCountry=United+States'},
+  {name:'Toyota R&D',sub:'Ann Arbor',urlTemplate:'https://www.toyota.com/careers/jobs?q={kw}&location=Michigan'},
+  {name:'LG Energy Sol.',sub:'Holland MI · battery',urlTemplate:'https://careers.lgensol.com/job?keyword={kw}&location=Michigan'},
+  {name:'Webasto',sub:'Auburn Hills',urlTemplate:'https://jobs.webasto.com/search/?q={kw}&locationsearch=Michigan'},
+  {name:'LinkedIn Jobs',sub:'Senior+ filter · login',urlTemplate:'https://www.linkedin.com/jobs/search/?keywords={kw}&location=Michigan%2C%20United%20States&f_E=4%2C5%2C6'},
+];
+
+const DEFAULT_SETTINGS = {
+  roleFamilies:{'ev-battery':true,'auto-dre':true,'sys-mech':true,'sim-cae':false,'eng-mgmt':true},
+  seniority:{'senior':true,'staff':true,'principal':true,'manager':true,'director':true},
+  michiganOnly:true,includeRemote:false,companies:DEFAULT_COMPANIES,
+  searchQuery:'battery engineer',adzunaId:'',adzunaKey:'',
+};
+
+const ROLE_FAMILY_LABELS = {
+  'ev-battery':'EV / Battery (DRE, HV, BMS)','auto-dre':'Auto DRE (interior, body, chassis)',
+  'sys-mech':'Systems / Mechanical Eng','sim-cae':'Simulation / CAE / ADAS','eng-mgmt':'Engineering Mgmt (lead+)',
+};
+const SENIORITY_LABELS = {'senior':'Senior','staff':'Staff / Lead','principal':'Principal','manager':'Manager','director':'Director / VP'};
+
+const ROLE_KEYWORDS = {
+  'ev-battery':['battery','cell','pack','module','bms','high voltage','hv ','busbar','contactor','electrification','powertrain','inverter','charger','bdu','disconnect','thermal'],
+  'auto-dre':['design release','dre','interior','chassis','body','safety','seat','restraint','cockpit','instrument panel','trim','closure'],
+  'sys-mech':['mechanical','systems engineer','product engineer','design engineer'],
+  'sim-cae':['simulation','cae','fea','cfd','ansys','mathworks','digital twin','adas','virtual','modeling'],
+  'eng-mgmt':['manager','lead engineer','team lead','principal engineer','staff engineer','director','chief engineer'],
+};
+const SENIORITY_KEYWORDS = {
+  'senior':['senior','sr.','sr '],'staff':['staff','lead'],'principal':['principal'],'manager':['manager','mgr'],'director':['director','vp','head of'],
+};
+
+const MICHIGAN_LOCATIONS = ['michigan','mi,',' mi ','detroit','dearborn','auburn hills','novi','warren','troy','southfield','plymouth','ann arbor','lansing','farmington hills','sterling heights','pontiac','rochester hills','romulus','taylor','livonia','wixom','van buren','marshall, mi','lake orion','milford','allen park','flint','holland'];
+
+let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let allJobs = [];
+let savedJobs = [];
+let currentFilter = 'all';
+let sourceCount = 0;
+
+async function loadState() {
+  try { const s = await window.storage.get('settings'); if (s) settings = {...DEFAULT_SETTINGS,...JSON.parse(s.value)}; } catch(e) {}
+  try { const sj = await window.storage.get('savedJobs'); if (sj) savedJobs = JSON.parse(sj.value); } catch(e) { savedJobs = []; }
+  try { const cache = await window.storage.get('jobsCache'); if (cache) { const d = JSON.parse(cache.value); allJobs = d.jobs||[]; sourceCount = d.sourceCount||0; updateLastRefresh(d.timestamp); } } catch(e) {}
+}
+async function saveSettings() { try { await window.storage.set('settings', JSON.stringify(settings)); } catch(e) {} }
+async function saveSavedJobs() { try { await window.storage.set('savedJobs', JSON.stringify(savedJobs)); } catch(e) {} }
+async function cacheJobs() { try { await window.storage.set('jobsCache', JSON.stringify({jobs:allJobs,sourceCount,timestamp:Date.now()})); } catch(e) {} }
+
+async function fetchGreenhouse(token) {
+  try {
+    const res = await fetch(`https://boards-api.greenhouse.io/v1/boards/${token}/jobs?content=true`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.jobs||[]).map(j => ({
+      id:`gh-${token}-${j.id}`,title:j.title||'',company:companyNameFromToken(token,'greenhouse'),
+      location:j.location?.name||'',url:j.absolute_url,posted:j.updated_at,
+      content:stripHtml(j.content||''),source:'greenhouse',salary:null,
+    }));
+  } catch(e) { return []; }
+}
+
+async function fetchLever(account) {
+  try {
+    const res = await fetch(`https://api.lever.co/v0/postings/${account}?mode=json`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data||[]).map(j => ({
+      id:`lv-${account}-${j.id}`,title:j.text||'',company:companyNameFromToken(account,'lever'),
+      location:j.categories?.location||'',url:j.hostedUrl,posted:new Date(j.createdAt).toISOString(),
+      content:stripHtml(j.description||''),source:'lever',
+      salary:j.salaryRange?`$${Math.floor(j.salaryRange.min/1000)}-${Math.floor(j.salaryRange.max/1000)}K`:null,
+    }));
+  } catch(e) { return []; }
+}
+
+async function fetchAdzuna(query, country) {
+  if (!settings.adzunaId || !settings.adzunaKey) return [];
+  const results = [];
+  for (let page = 1; page <= 2; page++) {
+    try {
+      const where = (settings.michiganOnly && country === 'us') ? '&where=Michigan' : '';
+      const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/${page}?app_id=${settings.adzunaId}&app_key=${settings.adzunaKey}&results_per_page=50&what=${encodeURIComponent(query)}${where}&content-type=application/json`;
+      const res = await fetch(url);
+      if (!res.ok) break;
+      const data = await res.json();
+      const jobs = (data.results||[]).map(j => ({
+        id:`az-${j.id}`,title:j.title||'',company:j.company?.display_name||'Unknown',
+        location:j.location?.display_name||'',url:j.redirect_url,posted:j.created,
+        content:(j.description||'').slice(0,600),source:'adzuna',
+        salary:(j.salary_min&&j.salary_max)?`$${Math.floor(j.salary_min/1000)}-${Math.floor(j.salary_max/1000)}K`:null,
+      }));
+      results.push(...jobs);
+      if (jobs.length < 50) break;
+    } catch(e) { break; }
+  }
+  return results;
+}
+
+function companyNameFromToken(token, ats) {
+  const c = settings.companies.find(x => x.token === token && x.ats === ats);
+  return c?.name || token;
+}
+
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return (tmp.textContent||'').slice(0,600);
+}
+
+async function fetchAllJobs() {
+  sourceCount = 0;
+  const atsPromises = settings.companies.map(c => c.ats === 'lever' ? fetchLever(c.token) : fetchGreenhouse(c.token));
+  const adzunaPromises = [];
+  if (settings.adzunaId && settings.adzunaKey) {
+    const queries = [];
+    if (settings.roleFamilies['ev-battery']) queries.push('battery engineer','BMS engineer','high voltage engineer');
+    if (settings.roleFamilies['auto-dre']) queries.push('design release engineer');
+    if (settings.roleFamilies['sys-mech']) queries.push('mechanical engineer automotive');
+    if (settings.roleFamilies['sim-cae']) queries.push('CAE engineer automotive');
+    if (settings.roleFamilies['eng-mgmt']) queries.push('engineering manager automotive');
+    if (settings.searchQuery && !queries.includes(settings.searchQuery)) queries.unshift(settings.searchQuery);
+    queries.forEach(q => adzunaPromises.push(fetchAdzuna(q,'us')));
+  }
+  const [atsResults, adzunaResults] = await Promise.all([Promise.all(atsPromises), Promise.all(adzunaPromises)]);
+  const flat = [...atsResults.flat(), ...adzunaResults.flat()];
+  sourceCount = settings.companies.length + (settings.adzunaId ? 1 : 0);
+  const seen = new Set();
+  const unique = [];
+  for (const j of flat) {
+    const key = j.url || (j.company + j.title);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(j);
+  }
+  return unique;
+}
+
+function jobMatches(job) {
+  const title = (job.title||'').toLowerCase();
+  const loc = (job.location||'').toLowerCase();
+  const content = (job.content||'').toLowerCase();
+  const text = title + ' ' + content;
+
+  if (settings.michiganOnly) {
+    const isMI = MICHIGAN_LOCATIONS.some(k => loc.includes(k));
+    const isRemote = loc.includes('remote') || loc.includes('anywhere');
+    if (!isMI && !(settings.includeRemote && isRemote)) return null;
+  }
+
+  const activeFamilies = Object.entries(settings.roleFamilies).filter(([_,v]) => v).map(([k]) => k);
+  const matchedFamilies = activeFamilies.filter(f => ROLE_KEYWORDS[f].some(kw => title.includes(kw) || content.includes(kw)));
+  if (activeFamilies.length > 0 && matchedFamilies.length === 0) return null;
+
+  const activeSeniority = Object.entries(settings.seniority).filter(([_,v]) => v).map(([k]) => k);
+  const matchedSeniority = activeSeniority.filter(s => SENIORITY_KEYWORDS[s].some(kw => title.includes(kw)));
+  if (activeSeniority.length > 0 && matchedSeniority.length === 0) return null;
+
+  let score = 0;
+  if (title.includes('battery') || title.includes('hv ') || title.includes('high voltage')) score += 10;
+  if (title.includes('dre') || title.includes('design release')) score += 8;
+  if (title.includes('senior') || title.includes('staff')) score += 4;
+  if (title.includes('principal') || title.includes('manager') || title.includes('lead')) score += 5;
+  if (text.includes('busbar') || text.includes('contactor') || text.includes('bdu')) score += 6;
+  if (text.includes('dfmea') || text.includes('dvp')) score += 3;
+  if (job.salary) score += 1;
+
+  return {...job, matchedFamilies, matchedSeniority, score, isMI: MICHIGAN_LOCATIONS.some(k => loc.includes(k))};
+}
+
+function getFilteredJobs() {
+  const matched = allJobs.map(jobMatches).filter(Boolean);
+  let filtered = matched;
+  if (currentFilter === 'high-match') filtered = matched.filter(j => j.score >= 10);
+  else if (currentFilter === 'battery') filtered = matched.filter(j => j.matchedFamilies.includes('ev-battery'));
+  else if (currentFilter === 'mgmt') filtered = matched.filter(j => j.matchedFamilies.includes('eng-mgmt'));
+  else if (currentFilter === 'recent') {
+    const wk = Date.now() - 7*24*60*60*1000;
+    filtered = matched.filter(j => new Date(j.posted).getTime() > wk);
+  } else if (currentFilter === 'salary') filtered = matched.filter(j => j.salary);
+  return filtered.sort((a,b) => b.score - a.score || new Date(b.posted) - new Date(a.posted));
+}
+
+function renderSetupPrompt() {
+  const el = document.getElementById('setupArea');
+  if (settings.adzunaId && settings.adzunaKey) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="setup-prompt">
+      <h4>Want 10× more job coverage?</h4>
+      <p>Connect a free Adzuna API key to pull listings from Indeed-style aggregators, employer sites, and niche boards in addition to the built-in startup feeds.</p>
+      <button class="btn" onclick="switchView('settings')" style="width:100%">SET UP IN SETTINGS</button>
+    </div>`;
+}
+
+function renderJobs() {
+  renderSetupPrompt();
+  const jobs = getFilteredJobs();
+  const list = document.getElementById('jobsList');
+  document.getElementById('jobCount').textContent = jobs.length;
+  document.getElementById('sourceCount').textContent = sourceCount;
+  if (jobs.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">∅</div><div class="empty-text"><strong>No matches yet</strong>${allJobs.length === 0 ? 'Tap refresh ↻ above to pull listings.' : 'Try widening filters or use a different search.'}</div></div>`;
+    return;
+  }
+  list.innerHTML = jobs.map(j => renderJobCard(j)).join('');
+}
+
+function renderJobCard(j) {
+  const isSaved = savedJobs.some(s => s.id === j.id);
+  const posted = formatDate(j.posted);
+  const tags = [];
+  if (j.score >= 15) tags.push('<span class="job-tag match">HIGH MATCH</span>');
+  if (j.isMI) tags.push('<span class="job-tag">MI</span>');
+  if (j.salary) tags.push(`<span class="job-tag salary">${escapeHtml(j.salary)}</span>`);
+  j.matchedFamilies.slice(0,2).forEach(f => {
+    const labels = {'ev-battery':'EV/BATT','auto-dre':'AUTO DRE','sys-mech':'MECH','sim-cae':'CAE','eng-mgmt':'MGMT'};
+    tags.push(`<span class="job-tag">${labels[f]}</span>`);
+  });
+  return `
+    <div class="job-card ${isSaved?'saved':''}" data-id="${j.id}" onclick="openJob('${j.id}')">
+      <div class="job-meta">
+        <span class="job-company">${escapeHtml(j.company)} <span class="source-tag">${j.source}</span></span>
+        <span class="job-date">${posted}</span>
+      </div>
+      <div class="job-title">${escapeHtml(j.title)}</div>
+      <div class="job-location">📍 ${escapeHtml(j.location||'Location TBD')}</div>
+      <div class="job-tags">${tags.join('')}</div>
+      <div class="job-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn ${isSaved?'active':''}" onclick="toggleSave('${j.id}')">
+          <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        </button>
+        <a class="link-btn" href="${j.url}" target="_blank" rel="noopener">VIEW JOB ↗</a>
+      </div>
+    </div>`;
+}
+
+function renderSaved() {
+  const list = document.getElementById('savedList');
+  document.getElementById('savedCount').textContent = savedJobs.length;
+  if (savedJobs.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">♥</div><div class="empty-text"><strong>Nothing saved yet</strong>Tap the bookmark on a job to save it here.</div></div>`;
+    return;
+  }
+  list.innerHTML = savedJobs.map(j => renderJobCard(j)).join('');
+}
+
+function renderSettings() {
+  document.getElementById('roleFamilyToggles').innerHTML = Object.keys(ROLE_FAMILY_LABELS).map(k => `
+    <div class="setting-row">
+      <div class="setting-label">${ROLE_FAMILY_LABELS[k]}</div>
+      <div class="checkbox-wrap" onclick="toggleRoleFamily('${k}')"><div class="checkbox ${settings.roleFamilies[k]?'checked':''}" id="rf-${k}"></div></div>
+    </div>`).join('');
+  document.getElementById('seniorityToggles').innerHTML = Object.keys(SENIORITY_LABELS).map(k => `
+    <div class="setting-row">
+      <div class="setting-label">${SENIORITY_LABELS[k]}</div>
+      <div class="checkbox-wrap" onclick="toggleSeniority('${k}')"><div class="checkbox ${settings.seniority[k]?'checked':''}" id="sn-${k}"></div></div>
+    </div>`).join('');
+  document.getElementById('cb-michiganOnly').className = 'checkbox' + (settings.michiganOnly?' checked':'');
+  document.getElementById('cb-includeRemote').className = 'checkbox' + (settings.includeRemote?' checked':'');
+  document.getElementById('companyChips').innerHTML = settings.companies.map(c => `<span class="company-chip">${escapeHtml(c.name)}<span class="x" onclick="removeCompany('${c.token}','${c.ats}')">×</span></span>`).join('');
+  document.getElementById('adzunaIdInput').value = settings.adzunaId || '';
+  document.getElementById('adzunaKeyInput').value = settings.adzunaKey || '';
+  if (settings.adzunaId && settings.adzunaKey) {
+    document.getElementById('adzunaStatus').innerHTML = '<span style="color:var(--green)">✓ CONFIGURED</span>';
+  }
+}
+
+function renderFilters() {
+  const filters = [{id:'all',label:'All'},{id:'high-match',label:'★ High Match'},{id:'battery',label:'Battery'},{id:'mgmt',label:'Mgmt'},{id:'recent',label:'Last 7 days'},{id:'salary',label:'$ Listed'}];
+  document.getElementById('filterPills').innerHTML = filters.map(f => `<button class="pill ${currentFilter===f.id?'active':''}" onclick="setFilter('${f.id}')">${f.label}</button>`).join('');
+}
+
+function renderDirectLinks() {
+  const kw = encodeURIComponent(settings.searchQuery || 'battery engineer');
+  document.getElementById('directGrid').innerHTML = DIRECT_LINK_COMPANIES.map(c => `
+    <a class="direct-tile" href="${c.urlTemplate.replace('{kw}',kw)}" target="_blank" rel="noopener">
+      <span class="dt-name">${escapeHtml(c.name)}</span>
+      <span class="dt-sub">${escapeHtml(c.sub)}</span>
+    </a>`).join('');
+}
+
+function setFilter(id) { currentFilter = id; renderFilters(); renderJobs(); }
+
+function runSearch() {
+  const input = document.getElementById('searchInput');
+  const q = input.value.trim();
+  if (!q) return;
+  settings.searchQuery = q;
+  saveSettings();
+  renderDirectLinks();
+  showToast('SEARCHING…');
+  refreshJobs();
+}
+
+function toggleRoleFamily(k) { settings.roleFamilies[k] = !settings.roleFamilies[k]; saveSettings(); renderSettings(); renderJobs(); }
+function toggleSeniority(k) { settings.seniority[k] = !settings.seniority[k]; saveSettings(); renderSettings(); renderJobs(); }
+function toggleSetting(k) { settings[k] = !settings[k]; saveSettings(); renderSettings(); renderJobs(); }
+
+function addCompany() {
+  const input = document.getElementById('newCompanyInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  const isLever = raw.startsWith('lever:');
+  const token = isLever ? raw.slice(6) : raw;
+  if (settings.companies.some(c => c.token === token)) { showToast('ALREADY ADDED'); return; }
+  settings.companies.push({token,name:token.charAt(0).toUpperCase()+token.slice(1),ats:isLever?'lever':'greenhouse'});
+  saveSettings(); renderSettings(); input.value = '';
+  showToast('ADDED · REFRESH TO LOAD');
+}
+
+function removeCompany(token, ats) {
+  settings.companies = settings.companies.filter(c => !(c.token === token && c.ats === ats));
+  saveSettings(); renderSettings();
+}
+
+async function saveAdzunaCreds() {
+  const id = document.getElementById('adzunaIdInput').value.trim();
+  const key = document.getElementById('adzunaKeyInput').value.trim();
+  if (!id || !key) { document.getElementById('adzunaStatus').innerHTML = '<span style="color:var(--red)">⚠ BOTH FIELDS REQUIRED</span>'; return; }
+  document.getElementById('adzunaStatus').innerHTML = '<span style="color:var(--text-dim)">TESTING…</span>';
+  try {
+    const testUrl = `https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=${id}&app_key=${key}&results_per_page=1&what=engineer&content-type=application/json`;
+    const res = await fetch(testUrl);
+    if (!res.ok) { document.getElementById('adzunaStatus').innerHTML = `<span style="color:var(--red)">⚠ AUTH FAILED (${res.status})</span>`; return; }
+    settings.adzunaId = id; settings.adzunaKey = key;
+    await saveSettings();
+    document.getElementById('adzunaStatus').innerHTML = '<span style="color:var(--green)">✓ CONNECTED — TAP REFRESH TO LOAD</span>';
+    showToast('ADZUNA CONNECTED');
+  } catch(e) { document.getElementById('adzunaStatus').innerHTML = `<span style="color:var(--red)">⚠ NETWORK ERROR</span>`; }
+}
+
+function toggleSave(id) {
+  const job = allJobs.find(j => j.id === id) || savedJobs.find(j => j.id === id);
+  if (!job) return;
+  const idx = savedJobs.findIndex(s => s.id === id);
+  if (idx === -1) { savedJobs.push(job); showToast('SAVED'); }
+  else { savedJobs.splice(idx,1); showToast('REMOVED'); }
+  saveSavedJobs(); renderJobs(); renderSaved();
+}
+
+function clearSaved() {
+  if (!confirm('Remove all saved jobs?')) return;
+  savedJobs = []; saveSavedJobs(); renderSaved(); showToast('CLEARED');
+}
+
+async function refreshJobs() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('refresh-spin');
+  showToast('FETCHING…');
+  try {
+    allJobs = await fetchAllJobs();
+    await cacheJobs();
+    updateLastRefresh(Date.now());
+    renderJobs();
+    showToast(`${allJobs.length} ROLES · ${sourceCount} SOURCES`);
+  } catch(e) { showToast('FETCH FAILED'); console.error(e); }
+  finally { btn.classList.remove('refresh-spin'); }
+}
+
+function openJob(id) {
+  const job = allJobs.find(j => j.id === id) || savedJobs.find(j => j.id === id);
+  if (!job) return;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-sub">${escapeHtml(job.company)} · ${formatDate(job.posted)} · ${job.source}</div>
+    <h3>${escapeHtml(job.title)}</h3>
+    <div class="modal-sub" style="margin-bottom:14px">📍 ${escapeHtml(job.location||'—')}${job.salary?' · '+escapeHtml(job.salary):''}</div>
+    <div class="modal-body">${escapeHtml(job.content||'No description provided. Tap below to view on company site.')}</div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="btn btn-ghost" onclick="toggleSave('${job.id}'); closeModal()" style="flex:1">${savedJobs.some(s => s.id === job.id) ? 'UNSAVE' : 'SAVE'}</button>
+      <a class="btn" href="${job.url}" target="_blank" rel="noopener" style="flex:1;text-decoration:none;text-align:center">APPLY ↗</a>
+    </div>`;
+  document.getElementById('modalBack').classList.add('show');
+}
+
+function closeModal(e) {
+  if (e && e.target.id !== 'modalBack') return;
+  document.getElementById('modalBack').classList.remove('show');
+}
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (name === 'saved') renderSaved();
+  if (name === 'settings') renderSettings();
+  if (name === 'jobs') { renderJobs(); renderDirectLinks(); }
+  window.scrollTo(0,0);
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60)+'m';
+  if (diff < 86400) return Math.floor(diff/3600)+'h';
+  if (diff < 86400*7) return Math.floor(diff/86400)+'d';
+  if (diff < 86400*30) return Math.floor(diff/86400/7)+'w';
+  return Math.floor(diff/86400/30)+'mo';
+}
+
+function updateLastRefresh(ts) {
+  if (!ts) return;
+  document.getElementById('lastUpdated').textContent = formatDate(ts) + ' ago';
+  const el = document.getElementById('lastRefreshTime');
+  if (el) el.textContent = new Date(ts).toLocaleString();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+document.getElementById('refreshBtn').addEventListener('click', refreshJobs);
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+
+(async function init() {
+  await loadState();
+  document.getElementById('searchInput').value = settings.searchQuery || '';
+  renderFilters();
+  renderDirectLinks();
+  renderJobs();
+  renderSettings();
+  if (allJobs.length === 0) refreshJobs();
+})();
+</script>
+
+</body>
+</html>
